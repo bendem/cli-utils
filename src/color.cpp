@@ -1,9 +1,11 @@
+#include <regex>
+
 #include "utils.hpp"
 
 const std::string BEFORE = ANSI_RED;
 const std::string AFTER  = ANSI_RESET;
 
-int color(const std::string& line, const std::string& search) {
+int color(str line, str search) {
     size_t current = 0;
     size_t pos = line.find(search);
     while (pos != std::string::npos) {
@@ -17,11 +19,15 @@ int color(const std::string& line, const std::string& search) {
 }
 
 int main(int argc, char const *argv[]) {
-    if (argc < 2) {
-        std::cerr << "Missing search parameter" << std::endl;
-        return 1;
+    auto args = parse_args(argc, argv);
+    if (args.has_flag("help")) {
+        // todo write help
+        return 0;
     }
 
-    std::string search = argv[1];
-    return for_lines_in(std::cin, color, search);
+    if (args.arguments.empty()) {
+        std::cerr << "Missing search parameter, see --help for more information." << std::endl;
+    }
+
+    return for_lines_in(std::cin, color, args.arguments[0]);
 }

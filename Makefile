@@ -1,8 +1,10 @@
+PREFIX ?= /usr
 CXX ?= g++
-CXX_FLAGS := -pedantic $(CXX_FLAGS)
+CXXFLAGS := -I src -std=c++14 $(CXXFLAGS)
 comp = $(CXX) $(CXXFLAGS)
 
-PREFIX ?= /usr
+dep_catch_url = https://raw.githubusercontent.com/philsquared/Catch/35f510545d55a831372d3113747bf1314ff4f2ef/single_include/catch.hpp
+dep_catch_name := $(shell basename $(dep_catch_url))
 
 executables = log color
 executables_out := $(executables:%=build/%)
@@ -20,7 +22,7 @@ all: build/ $(executables_out)
 	@echo done
 
 # dirs
-build/:
+build/ include_tests/:
 	mkdir -p $@
 
 
@@ -35,16 +37,19 @@ build/%.o: src/%.cpp
 	$(comp) -c -o $@ $<
 
 # tests
-test: build/tests build/run_tests run_tests
+test: build/tests include_tests/$(dep_catch_name) build/run_tests run_tests
+
+include_tests/$(dep_catch_name): include_tests/
+	curl -s -o $@ $(dep_catch_url)
 
 build/run_tests: tests/tests.cpp $(test_obj_files) $(obj_files)
-	$(comp) -o $@ $^
+	$(comp) -I include_tests -o $@ $^
 
 build/tests:
 	mkdir -p $@
 
 build/tests/%.o: tests/%.cpp
-	$(comp) -c -o $@ $<
+	$(comp) -I include_tests -c -o $@ $<
 
 run_tests: build/run_tests
 	./build/run_tests
