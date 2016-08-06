@@ -60,8 +60,6 @@ install:
 	$(foreach binary,$(executables),cp -u build/$(binary) $(PREFIX)/bin/$(binary);)
 
 
-
-
 # misc
 clean:
 	rm -r build
