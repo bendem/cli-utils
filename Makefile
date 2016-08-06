@@ -4,7 +4,7 @@ comp = $(CXX) $(CXXFLAGS)
 
 PREFIX ?= /usr
 
-executables = log
+executables = log color
 executables_out := $(executables:%=build/%)
 
 src_files := $(wildcard src/*.cpp)
