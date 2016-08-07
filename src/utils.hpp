@@ -35,18 +35,14 @@ struct args_t {
 args_t parse_args(int argc, const char* argv[]);
 
 template<typename Action, typename... Args>
-int for_lines_in(std::istream& in, Action action, Args... args) {
+void for_lines_in(std::istream& in, Action action, Args... args) {
     while (true) {
         std::string line;
         std::getline(in, line);
         if (!in) break;
 
-        int res;
-        if ((res = action(line, args...)) != 0) {
-            return res;
-        }
+        action(line, args...);
     }
-    return 0;
 }
 
 #endif

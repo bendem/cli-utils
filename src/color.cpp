@@ -5,7 +5,7 @@
 const std::string BEFORE = ANSI_RED;
 const std::string AFTER  = ANSI_RESET;
 
-int color_string(str line, str search) {
+void color_string(str line, str search) {
     size_t current = 0;
     size_t pos = line.find(search);
     while (pos != std::string::npos) {
@@ -14,19 +14,15 @@ int color_string(str line, str search) {
         pos = line.find(search, current);
     }
     std::cout << line.substr(current) << std::endl;
-
-    return 0;
 }
 
-int color_regex(str line, std::regex search) {
+ void color_regex(str line, std::regex search) {
     std::string suffix = line;
     for (std::sregex_iterator it(line.begin(), line.end(), search), end; it != end; ++it) {
         std::cout << it->prefix() << BEFORE << it->str() << AFTER;
         suffix = it->suffix();
     }
     std::cout << suffix << std::endl;
-
-    return 0;
 }
 
 int main(int argc, char const *argv[]) {
@@ -49,9 +45,10 @@ int main(int argc, char const *argv[]) {
                 ? std::regex::icase
                 : static_cast<std::regex_constants::syntax_option_type>(0));
 
-        return for_lines_in(std::cin, color_regex, search);
+        for_lines_in(std::cin, color_regex, search);
     } else {
-        return for_lines_in(std::cin, color_string, args.arguments[0]);
+        for_lines_in(std::cin, color_string, args.arguments[0]);
     }
 
+    return 0;
 }

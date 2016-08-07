@@ -13,8 +13,9 @@ int main(int argc, char const *argv[]) {
     }
 
     auto prepend = args.arguments[0] + (args.has_flag("no-space") ? "" : " ");
-    return for_lines_in(std::cin, [&prepend](auto line) {
+    for_lines_in(std::cin, [&prepend](auto line) {
         std::cout << prepend << line << std::endl;
-        return 0;
     });
+
+    return 0;
 }

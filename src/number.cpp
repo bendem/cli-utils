@@ -11,8 +11,9 @@ int main(int argc, char const *argv[]) {
 
     size_t current = 0;
     size_t padding = args.get_or("expect", "100").length();
-    return for_lines_in(std::cin, [&current, &padding](auto line) {
+    for_lines_in(std::cin, [&current, &padding](auto line) {
         std::cout << std::setw(padding) << ++current << ' ' << line << std::endl;
-        return 0;
     });
+
+    return 0;
 }
