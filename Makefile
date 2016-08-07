@@ -6,7 +6,7 @@ comp = $(CXX) $(CXXFLAGS)
 dep_catch_url = https://raw.githubusercontent.com/philsquared/Catch/35f510545d55a831372d3113747bf1314ff4f2ef/single_include/catch.hpp
 dep_catch_name := $(shell basename $(dep_catch_url))
 
-executables = log color
+executables = log color prepend
 executables_out := $(executables:%=build/%)
 
 src_files := $(wildcard src/*.cpp)
