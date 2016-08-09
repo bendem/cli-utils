@@ -10,10 +10,14 @@ void exec(str line, str format) {
 
 int main(int argc, char const *argv[]) {
     auto args = parse_args(argc, argv);
-    if (args.has_flag("help")) {
-        // todo write help
-        return 0;
-    }
+
+    if (HELP(args,
+        "[--format=<format>]",
+        "Prepends each line of input with the time it was output at.",
+        {
+            "--format=<value>: Specifies the format of the time to prepend (default: [%F %T])."
+        }
+    )) return 0;
 
     for_lines_in(std::cin, exec, args.get_or("format", "[%F %T]"));
 

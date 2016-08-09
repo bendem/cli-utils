@@ -27,10 +27,14 @@ void color_string(str line, str search) {
 
 int main(int argc, char const *argv[]) {
     auto args = parse_args(argc, argv);
-    if (args.has_flag("help")) {
-        // todo write help
-        return 0;
-    }
+    if (HELP(args,
+        "[--regex [--case-insensitive]] <search>",
+        "Colors the provided argument in each line of input.",
+        {
+            "--regex:            Treats the search argument as a regex",
+            "--case-insensitive: If --regex was provided, makes the search case insensitive"
+        }
+    )) return 0;
 
     if (args.arguments.empty()) {
         std::cerr << "Missing search parameter, see --help for more information." << std::endl;

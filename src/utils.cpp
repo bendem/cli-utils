@@ -34,3 +34,19 @@ args_t parse_args(int argc, const char* argv[]) {
 
     return args;
 }
+
+bool HELP(args_t args, const std::string& usage, const std::string& description, const std::vector<std::string>& arguments) {
+    if (args.has_flag("help")) {
+        std::cout
+            << "Usage: " << args.program_name << ' ' << usage << std::endl
+            << description << std::endl << std::endl
+            << "Options are:" << std::endl;
+
+        for (auto argument : arguments) {
+            std::cout << "    " << argument << std::endl;
+        }
+
+        return true;
+    }
+    return false;
+}
