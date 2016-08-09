@@ -2,6 +2,41 @@
 
 #include "strings.hpp"
 
+/*
+ * From the rfc (https://tools.ietf.org/html/rfc3629#section-3):
+ *
+ * The table below summarizes the format of these different octet types.
+ * The letter x indicates bits available for encoding bits of the
+ * character number.
+
+ * Char. number range  |        UTF-8 octet sequence
+ *    (hexadecimal)    |              (binary)
+ * --------------------+---------------------------------------------
+ * 0000 0000-0000 007F | 0xxxxxxx
+ * 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+ * 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+ * 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *
+ * Encoding a character to UTF-8 proceeds as follows:
+ *
+ * 1.  Determine the number of octets required from the character number
+ *     and the first column of the table above.  It is important to note
+ *     that the rows of the table are mutually exclusive, i.e., there is
+ *     only one valid way to encode a given character.
+ *
+ * 2.  Prepare the high-order bits of the octets as per the second
+ *     column of the table.
+ *
+ * 3.  Fill in the bits marked x from the bits of the character number,
+ *     expressed in binary.  Start by putting the lowest-order bit of
+ *     the character number in the lowest-order position of the last
+ *     octet of the sequence, then put the next higher-order bit of the
+ *     character number in the next higher-order position of that octet,
+ *     etc.  When the x bits of the last octet are filled in, move on to
+ *     the next to last octet, then to the preceding one, etc. until all
+ *     x bits are filled in.
+ */
+
 uint32_t next_codepoint(std::string::const_iterator& it) {
     static_assert(sizeof(wchar_t) >= 4);
 
