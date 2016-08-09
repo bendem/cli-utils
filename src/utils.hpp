@@ -1,7 +1,6 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -46,5 +45,7 @@ void for_lines_in(std::istream& in, Action action, Args... args) {
         action(line, args...);
     }
 }
+
+std::string format_memory(std::uintmax_t amount);
 
 #endif

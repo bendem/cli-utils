@@ -1,12 +1,12 @@
 PREFIX ?= /usr
 CXX ?= g++
-CXXFLAGS := -I src -std=c++14 $(CXXFLAGS)
+CXXFLAGS := -I src -std=c++1z $(CXXFLAGS)
 comp = $(CXX) $(CXXFLAGS)
 
 dep_catch_url = https://raw.githubusercontent.com/philsquared/Catch/35f510545d55a831372d3113747bf1314ff4f2ef/single_include/catch.hpp
 dep_catch_name := $(shell basename $(dep_catch_url))
 
-executables = log color
+executables = log color disk_graph
 executables_out := $(executables:%=build/%)
 
 src_files := $(wildcard src/*.cpp)
@@ -28,7 +28,7 @@ build/ include_tests/:
 
 # build
 $(executables_out): build/%: src/%.cpp $(obj_files)
-	$(comp) -o $@ $^
+	$(comp) -o $@ $^ -lstdc++fs
 
 build/%.o: src/%.cpp src/%.hpp
 	$(comp) -c -o $@ $<
@@ -58,6 +58,9 @@ run_tests: build/run_tests
 # install
 install:
 	$(foreach binary,$(executables),cp -u build/$(binary) $(PREFIX)/bin/$(binary);)
+
+uninstall:
+	$(foreach binary,$(executables),rm $(PREFIX)/bin/$(binary);)
 
 
 # misc

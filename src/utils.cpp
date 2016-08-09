@@ -1,3 +1,6 @@
+#include <iomanip>
+#include <sstream>
+
 #include "utils.hpp"
 
 bool args_t::has_flag(str name) const {
@@ -49,4 +52,27 @@ bool HELP(args_t args, const std::string& usage, const std::string& description,
         return true;
     }
     return false;
+}
+
+std::string format_memory(std::uintmax_t amount) {
+    std::array<char, 9> units {
+        ' ',
+        'K',
+        'M',
+        'G',
+        'T',
+        'P',
+        'E',
+        'Z',
+        'Y',
+    };
+    unsigned unit = 0;
+    while (amount > 1024 && unit < units.size()) {
+        ++unit;
+        amount >>= 10;
+    }
+
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(2) << std::setw(6) << amount << ' ' << units[unit] << 'B';
+    return out.str();
 }
