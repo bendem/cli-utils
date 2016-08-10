@@ -35,9 +35,13 @@ int main(int argc, const char* argv[]) {
     auto args = parse_args(argc, argv);
     if (HELP(args,
         "[--before --after --include-match --regex --case-insensitive] <search>",
-        "Ignores all line before/after a line containing the provided string.",
+        "Ignores all lines before/after a line containing the provided string.",
         {
-
+            "--before:           Ignore the lines before the match",
+            "--after:            Ignore the lines after the match",
+            "--include-match:    Also ignore the line matching the provided string",
+            "--regex:            Treat the provided string as a regex",
+            "--case-insensitive: Make the regex case insensitive",
         }
     )) return 0;
 
