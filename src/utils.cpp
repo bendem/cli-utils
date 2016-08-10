@@ -42,11 +42,13 @@ bool HELP(args_t args, const std::string& usage, const std::string& description,
     if (args.has_flag("help")) {
         std::cout
             << "Usage: " << args.program_name << ' ' << usage << std::endl
-            << description << std::endl << std::endl
-            << "Options are:" << std::endl;
+            << description << std::endl;
 
-        for (auto argument : arguments) {
-            std::cout << "    " << argument << std::endl;
+        if (!arguments.empty()) {
+            std::cout << std::endl << "Options are:" << std::endl;
+            for (auto argument : arguments) {
+                std::cout << "    " << argument << std::endl;
+            }
         }
 
         return true;
