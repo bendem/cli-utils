@@ -1,28 +1,22 @@
 #include <regex>
 
+#include "find.hpp"
 #include "utils.hpp"
 
 const std::string BEFORE = ANSI_RED;
 const std::string AFTER  = ANSI_RESET;
 
-void color_string(str line, str search) {
-    size_t current = 0;
-    size_t pos = line.find(search);
-    while (pos != std::string::npos) {
-        std::cout << line.substr(current, pos - current) << BEFORE << search << AFTER;
-        current = pos + search.length();
-        pos = line.find(search, current);
-    }
-    std::cout << line.substr(current) << std::endl;
-}
+template<typename Search>
+void color(str line, Search search) {
+    match_state_t match_state {};
+    match_result_t match;
+    size_t offset_remaining = 0;
 
- void color_regex(str line, std::regex search) {
-    std::string suffix = line;
-    for (std::sregex_iterator it(line.begin(), line.end(), search), end; it != end; ++it) {
-        std::cout << it->prefix() << BEFORE << it->str() << AFTER;
-        suffix = it->suffix();
+    while ((match = find(line, search, match_state)).start != std::string::npos) {
+        std::cout << line.substr(offset_remaining, match.start - offset_remaining) << BEFORE << match.match << AFTER;
+        offset_remaining = match.start + match.match.length();
     }
-    std::cout << suffix << std::endl;
+    std::cout << line.substr(offset_remaining) << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
@@ -38,20 +32,14 @@ int main(int argc, char const *argv[]) {
 
     if (args.arguments.empty()) {
         std::cerr << "Missing search parameter, see --help for more information." << std::endl;
+        return 1;
     }
 
     if (args.has_flag("regex")) {
-        std::regex search(args.arguments[0], std::regex::extended
-            | std::regex::optimize
-            | std::regex::nosubs
-            | std::regex::collate
-            | args.has_flag("case-insensitive")
-                ? std::regex::icase
-                : static_cast<std::regex_constants::syntax_option_type>(0));
-
-        for_lines_in(std::cin, color_regex, search);
+        for_lines_in<void(str, const std::regex&)>(
+            std::cin, color, make_regex(args.arguments[0], args.has_flag("case-insensitive")));
     } else {
-        for_lines_in(std::cin, color_string, args.arguments[0]);
+        for_lines_in<void(str, str)>(std::cin, color, args.arguments[0]);
     }
 
     return 0;
