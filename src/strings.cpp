@@ -98,8 +98,6 @@ std::string codepoint_to_string(uint32_t codepoint) {
     return std::string(reinterpret_cast<const char*>(&result) + (4 - size), size);
 }
 
-#include <iostream>
-
 template<typename Function, typename... Args>
 std::string map_codepoints(const std::string& string, Function function, Args... args) {
     std::string out;
