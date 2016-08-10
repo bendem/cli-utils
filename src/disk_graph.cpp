@@ -71,7 +71,7 @@ int main(int argc, char const *argv[]) {
         unsigned width_full = (double) width / 100 * percent;
 
         std::ostringstream graph_buffer;
-        for (int i = 0; i < width; ++i) {
+        for (unsigned i = 0; i < width; ++i) {
             graph_buffer << (i < width_full ? '=' : ' ');
         }
 
