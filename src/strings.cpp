@@ -112,9 +112,9 @@ std::string map_codepoints(const std::string& string, Function function, Args...
 }
 
 std::string to_upper(const std::string& string, const std::locale& locale) {
-    return map_codepoints<wchar_t(wchar_t, const std::locale&), const std::locale&>(string, std::toupper, locale);
+    return map_codepoints(string, codepoint_to_upper, locale);
 }
 
 std::string to_lower(const std::string& string, const std::locale& locale) {
-    return map_codepoints<wchar_t(wchar_t, const std::locale&), const std::locale&>(string, std::tolower, locale);
+    return map_codepoints(string, codepoint_to_lower, locale);
 }
