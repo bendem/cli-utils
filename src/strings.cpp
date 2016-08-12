@@ -38,8 +38,6 @@
  */
 
 uint32_t next_codepoint(std::string::const_iterator& it) {
-    static_assert(sizeof(wchar_t) >= 4);
-
     unsigned char c = *it;
     ++it;
     if ((c & (1 << 7)) == 0) {
@@ -69,8 +67,6 @@ uint32_t next_codepoint(std::string::const_iterator& it) {
 }
 
 std::string codepoint_to_string(uint32_t codepoint) {
-    static_assert(sizeof(wchar_t) >= 4);
-
     unsigned size;
     uint8_t result[4] = { 0 };
     if (codepoint > 0x00000000 && codepoint < 0x0000007F) {
