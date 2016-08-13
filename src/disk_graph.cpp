@@ -34,31 +34,45 @@ int main(int argc, char const *argv[]) {
     )) return 0;
 
     std::ifstream mounts("/proc/mounts");
-    auto all = args.has_flag("all");
+    bool all = args.has_flag("all");
 
-    using table_t7 = table_t<7>;
-    table_t7 table;
-    table
-        .align({
-            table_t7::left,
-            table_t7::left,
-            table_t7::left,
-            table_t7::right,
-            table_t7::right,
-            table_t7::right,
-            table_t7::right,
-        })
-        .add({
+    using dg_table = table_t<std::string, std::string, std::string, uintmax_t, uintmax_t, uintmax_t, double>;
+    dg_table table({
             "name",
             "mount",
             "graph",
             "capacity",
             "used",
             "free",
-            "percent",
-        });
+            "percent free",
+        }, {
+            ident_formatter,
+            ident_formatter,
+            ident_formatter,
+            format_memory,
+            format_memory,
+            format_memory,
+            [](auto value) {
+                std::ostringstream buffer;
+                if (std::isnan(value)) {
+                    buffer << "- %";
+                } else {
+                    buffer << std::setprecision(0) << std::fixed << value << " %";
+                }
+                return buffer.str();
+            },
+        }, {
+            table_alignment::left,
+            table_alignment::left,
+            table_alignment::left,
+            table_alignment::right,
+            table_alignment::right,
+            table_alignment::right,
+            table_alignment::right,
+        }
+    );
 
-    for_lines_in(mounts, [&all, &table](str line) {
+    for_lines_in(mounts, [all, &table](str line) {
         auto descriptor = parse_mount_line(line);
 
         if (descriptor.name[0] != '/' && !all) {
@@ -67,7 +81,7 @@ int main(int argc, char const *argv[]) {
 
         auto space = fs::space(descriptor.mount_point);
         auto percent = (double) space.available / space.capacity * 100;
-        unsigned width = 15;
+        unsigned width = 10;
         unsigned width_full = (double) width / 100 * percent;
 
         std::ostringstream graph_buffer;
@@ -75,21 +89,14 @@ int main(int argc, char const *argv[]) {
             graph_buffer << (i < width_full ? '=' : ' ');
         }
 
-        std::ostringstream percent_buffer;
-        if (std::isnan(percent)) {
-            percent_buffer << "- %";
-        } else {
-            percent_buffer << std::setprecision(0) << std::fixed << percent << " %";
-        }
-
         table.add({
             descriptor.name,
             descriptor.mount_point.native(),
             graph_buffer.str(),
-            format_memory(space.capacity),
-            format_memory(space.capacity - space.available),
-            format_memory(space.available),
-            percent_buffer.str(),
+            space.capacity,
+            space.capacity - space.available,
+            space.available,
+            percent,
         });
     });
 
