@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -21,12 +22,6 @@ using formatter_t = std::function<std::string(const T&)>;
 
 inline std::string ident_formatter(const std::string& str) {
     return str;
-}
-inline std::string unsigned_to_string_formatter(const unsigned& something) {
-    return std::to_string(something);
-}
-inline std::string uint8_t_to_string_formatter(const uint8_t& something) {
-    return std::to_string(something);
 }
 
 template<typename... Types>
@@ -64,10 +59,45 @@ private:
 
 };
 
+template<size_t i, typename lines_t, typename line_t>
+inline void insert(size_t sort_index, lines_t& v, const line_t& l) {
+    if (sort_index != i) {
+        return;
+    }
+
+    auto it = std::find_if(v.begin(), v.end(), [&l](auto current_line) {
+        return std::get<i>(l) < std::get<i>(current_line);
+    });
+
+    if (it == v.end()) {
+        v.push_back(l);
+    } else {
+        v.insert(it, l);
+    }
+}
+
+template<typename lines_t, typename line_t, size_t... indexes>
+void insert_line_helper_expansion(size_t sort_index, lines_t& lines, const line_t& line, std::index_sequence<indexes...>) {
+    (insert<indexes, lines_t, line_t>(sort_index, lines, line), ...);
+}
+
+template<typename lines_t, typename line_t>
+void insert_line_helper(size_t sort_index, lines_t& lines, const line_t& line) {
+    insert_line_helper_expansion(
+        sort_index, lines, line,
+        std::make_index_sequence<std::tuple_size<line_t>::value>{}
+    );
+}
+
 template<typename... Types>
 table_t<Types...>& table_t<Types...>::add(table_t<Types...>::line_t line) {
-    // TODO Insert sorted
-    lines.push_back(line);
+    assert(sort_index < column_count);
+
+    // you can't get the nth value of a tuple without knowing it at compile time,
+    // so we use insert_line_helper that will calls insert<0> ... insert<n> and
+    // insert will check if that n is the correct sort_index. Basically, brute-
+    // force.
+    insert_line_helper(sort_index, lines, line);
     update_column_max_width(line);
 
     return *this;
@@ -75,20 +105,15 @@ table_t<Types...>& table_t<Types...>::add(table_t<Types...>::line_t line) {
 
 template<typename function, typename values_t, typename formatters_t>
 void for_each_formatted_value_in_tuple(function f, values_t values, formatters_t formatters) {
-    helper_thing(
+    for_each_formatted_value_in_tuple_expansion(
         f, values, formatters,
         std::make_index_sequence<std::tuple_size<decltype(formatters)>::value>{}
     );
 }
 
-template <typename F, typename value_t, typename formatter_t, size_t ...indexes>
-void helper_thing(F& f, const value_t& value, const formatter_t& formatter, std::index_sequence<indexes...>) {
-    int disc[] {
-        0,
-        (f(std::get<indexes>(formatter)(std::get<indexes>(value)), indexes), 0)...
-    };
-    (void)disc;
-    //(f(std::get<indexes>(value), std::get<indexes>(formatter)), ...); // C++17 syntax
+template<typename function, typename value_t, typename formatter_t, size_t ...indexes>
+void for_each_formatted_value_in_tuple_expansion(function& f, const value_t& value, const formatter_t& formatter, std::index_sequence<indexes...>) {
+    (f(std::get<indexes>(formatter)(std::get<indexes>(value)), indexes), ...);
 }
 
 template<typename... Types>

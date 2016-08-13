@@ -7,6 +7,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "optional.hpp"
+
 using str = const std::string&;
 
 const std::string ANSI_ESCAPE  = "\033[";
@@ -44,6 +46,16 @@ void for_lines_in(std::istream& in, Action action, Args... args) {
 
         action(line, args...);
     }
+}
+
+template<typename It, typename Type>
+optional<size_t> find_index(It begin, It end, Type t) {
+    for (size_t index = 0; begin != end; ++begin, ++index) {
+        if (t == *begin) {
+            return { index };
+        }
+    }
+    return {};
 }
 
 std::string format_memory(std::uintmax_t amount);

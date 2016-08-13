@@ -33,19 +33,20 @@ int main(int argc, char const *argv[]) {
             "--all: Show all mount points"
         }
     )) return 0;
-
-    std::ifstream mounts("/proc/mounts");
+    dg_table::headers_t headers {
+        "name",
+        "mount",
+        "graph",
+        "capacity",
+        "used",
+        "free",
+        "percent free",
+    };
     bool all = args.has_flag("all");
+    auto sort = args.get_or("sort", "");
+    auto sort_index = find_index(headers.begin(), headers.end(), sort).value_or(0);
 
-    dg_table table({
-            "name",
-            "mount",
-            "graph",
-            "capacity",
-            "used",
-            "free",
-            "percent free",
-        }, {
+    dg_table table(headers, {
             ident_formatter,
             ident_formatter,
             ident_formatter,
@@ -69,9 +70,11 @@ int main(int argc, char const *argv[]) {
             table_alignment::right,
             table_alignment::right,
             table_alignment::right,
-        }
+        },
+        sort_index
     );
 
+    std::ifstream mounts("/proc/mounts");
     for_lines_in(mounts, [all, &table](str line) {
         auto descriptor = parse_mount_line(line);
 

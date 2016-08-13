@@ -1,7 +1,7 @@
 PREFIX ?= /usr
 CXX ?= g++
 warnings = -Wall -Wextra -Wno-parentheses -pedantic
-CXXFLAGS := -I src -std=c++14 $(warnings) $(CXXFLAGS)
+CXXFLAGS := -I src -std=c++1z $(warnings) $(CXXFLAGS)
 comp = $(CXX) $(CXXFLAGS)
 
 dep_catch_url = https://raw.githubusercontent.com/philsquared/Catch/35f510545d55a831372d3113747bf1314ff4f2ef/single_include/catch.hpp
