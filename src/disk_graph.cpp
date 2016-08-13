@@ -27,10 +27,12 @@ using dg_table = table_t<std::string, std::string, std::string, uintmax_t, uintm
 int main(int argc, char const *argv[]) {
     auto args = parse_args(argc, argv);
     if (HELP(args,
-        "",
-        "",
+        "[--all --sort=<column --descending]",
+        "Shows information about mounted filesystems.",
         {
-            "--all: Show all mount points"
+            "--all:           Show all mount points",
+            "--sort=<column>: Sort the output by the values of the specified column",
+            "--descending:    Sort the output in descending order",
         }
     )) return 0;
     dg_table::headers_t headers {
@@ -43,6 +45,7 @@ int main(int argc, char const *argv[]) {
         "percent free",
     };
     bool all = args.has_flag("all");
+    auto sort_direction = args.has_flag("descending") ? sort_direction::descending : sort_direction::ascending;
     auto sort = args.get_or("sort", "");
     auto sort_index = find_index(headers.begin(), headers.end(), sort).value_or(0);
 
@@ -71,7 +74,8 @@ int main(int argc, char const *argv[]) {
             table_alignment::right,
             table_alignment::right,
         },
-        sort_index
+        sort_index,
+        sort_direction
     );
 
     std::ifstream mounts("/proc/mounts");

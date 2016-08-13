@@ -17,6 +17,10 @@ enum class table_alignment {
     left, right
 };
 
+enum class sort_direction {
+    ascending, descending
+};
+
 template<typename T>
 using formatter_t = std::function<std::string(const T&)>;
 
@@ -35,8 +39,8 @@ public:
     using alignments_t = std::array<table_alignment, self_t::column_count>;
     using column_widths_t = std::array<size_t, self_t::column_count>;
 
-    table_t(headers_t headers, formatters_t formatters, alignments_t alignments, size_t sort_index = 0)
-            : formatters(formatters), alignments(alignments), sort_index(sort_index) {
+    table_t(headers_t headers, formatters_t formatters, alignments_t alignments, size_t sort_index = 0, sort_direction direction = sort_direction::ascending)
+            : formatters(formatters), alignments(alignments), sort_index(sort_index), direction(direction) {
         std::transform(headers.begin(), headers.end(), this->headers.begin(), [](auto& x) {
             return to_upper(x);
         });
@@ -51,6 +55,7 @@ private:
     formatters_t formatters;
     alignments_t alignments;
     size_t sort_index;
+    sort_direction direction;
     std::vector<line_t> lines {};
     column_widths_t column_max_width {};
 
@@ -60,13 +65,17 @@ private:
 };
 
 template<size_t i, typename lines_t, typename line_t>
-inline void insert(size_t sort_index, lines_t& v, const line_t& l) {
+inline void insert(size_t sort_index, sort_direction direction, lines_t& v, const line_t& l) {
     if (sort_index != i) {
         return;
     }
 
-    auto it = std::find_if(v.begin(), v.end(), [&l](auto current_line) {
-        return std::get<i>(l) < std::get<i>(current_line);
+    auto it = std::find_if(v.begin(), v.end(), [&l, &direction](auto current_line) {
+        if (direction == sort_direction::ascending) {
+            return std::get<i>(l) < std::get<i>(current_line);
+        } else {
+            return std::get<i>(l) > std::get<i>(current_line);
+        }
     });
 
     if (it == v.end()) {
@@ -77,8 +86,8 @@ inline void insert(size_t sort_index, lines_t& v, const line_t& l) {
 }
 
 template<typename lines_t, typename line_t, size_t... indexes>
-void insert_line_helper(size_t sort_index, lines_t& lines, const line_t& line, std::index_sequence<indexes...>) {
-    (insert<indexes, lines_t, line_t>(sort_index, lines, line), ...);
+void insert_line_helper(size_t sort_index, sort_direction direction, lines_t& lines, const line_t& line, std::index_sequence<indexes...>) {
+    (insert<indexes, lines_t, line_t>(sort_index, direction, lines, line), ...);
 }
 
 template<typename... Types>
@@ -89,7 +98,7 @@ table_t<Types...>& table_t<Types...>::add(table_t<Types...>::line_t line) {
     // so we use insert_line_helper that will calls insert<0> ... insert<n> and
     // insert will check if that n is the correct sort_index. Basically, brute-
     // force.
-    insert_line_helper(sort_index, lines, line, std::index_sequence_for<Types...> {});
+    insert_line_helper(sort_index, direction, lines, line, std::index_sequence_for<Types...> {});
     update_column_max_width(line);
 
     return *this;
