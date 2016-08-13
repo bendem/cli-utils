@@ -77,16 +77,8 @@ inline void insert(size_t sort_index, lines_t& v, const line_t& l) {
 }
 
 template<typename lines_t, typename line_t, size_t... indexes>
-void insert_line_helper_expansion(size_t sort_index, lines_t& lines, const line_t& line, std::index_sequence<indexes...>) {
+void insert_line_helper(size_t sort_index, lines_t& lines, const line_t& line, std::index_sequence<indexes...>) {
     (insert<indexes, lines_t, line_t>(sort_index, lines, line), ...);
-}
-
-template<typename lines_t, typename line_t>
-void insert_line_helper(size_t sort_index, lines_t& lines, const line_t& line) {
-    insert_line_helper_expansion(
-        sort_index, lines, line,
-        std::make_index_sequence<std::tuple_size<line_t>::value>{}
-    );
 }
 
 template<typename... Types>
@@ -97,7 +89,7 @@ table_t<Types...>& table_t<Types...>::add(table_t<Types...>::line_t line) {
     // so we use insert_line_helper that will calls insert<0> ... insert<n> and
     // insert will check if that n is the correct sort_index. Basically, brute-
     // force.
-    insert_line_helper(sort_index, lines, line);
+    insert_line_helper(sort_index, lines, line, std::index_sequence_for<Types...> {});
     update_column_max_width(line);
 
     return *this;
