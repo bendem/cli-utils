@@ -94,14 +94,15 @@ std::string codepoint_to_string(uint32_t codepoint) {
     return std::string(reinterpret_cast<const char*>(&result) + (4 - size), size);
 }
 
-template<typename Function, typename... Args>
-std::string map_codepoints(const std::string& string, Function function, Args... args) {
+template<typename Function>
+std::string map_codepoints(const std::string& string, Function function, const std::locale& locale) {
     std::string out;
     out.reserve(string.length());
 
     for (auto it = string.begin(), end = string.end(); it != end; ) {
         auto codepoint = next_codepoint(it);
-        out += codepoint_to_string(function(codepoint, args...));
+        auto str = function(codepoint, locale);
+        out += codepoint_to_string(str);
     }
 
     return out;
