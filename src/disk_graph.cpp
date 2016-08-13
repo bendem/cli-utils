@@ -3,10 +3,9 @@
 #include <fstream>
 #include <iomanip>
 
+#include "filesystem.hpp"
 #include "table.hpp"
 #include "utils.hpp"
-
-namespace fs = std::experimental::filesystem;
 
 struct descriptor_t {
     std::string name;
@@ -23,6 +22,8 @@ descriptor_t parse_mount_line(str line) {
     };
 }
 
+using dg_table = table_t<std::string, std::string, std::string, uintmax_t, uintmax_t, uintmax_t, double>;
+
 int main(int argc, char const *argv[]) {
     auto args = parse_args(argc, argv);
     if (HELP(args,
@@ -36,7 +37,6 @@ int main(int argc, char const *argv[]) {
     std::ifstream mounts("/proc/mounts");
     bool all = args.has_flag("all");
 
-    using dg_table = table_t<std::string, std::string, std::string, uintmax_t, uintmax_t, uintmax_t, double>;
     dg_table table({
             "name",
             "mount",
