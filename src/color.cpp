@@ -36,10 +36,10 @@ int main(int argc, char const *argv[]) {
     }
 
     if (args.has_flag("regex")) {
-        for_lines_in<void(str, const std::regex&)>(
-            std::cin, color, make_regex(args.arguments[0], args.has_flag("case-insensitive")));
+        auto regex = make_regex(args.arguments[0], args.has_flag("case-insensitive"));
+        for_lines_in(std::cin, color<const std::regex&>, regex);
     } else {
-        for_lines_in<void(str, str)>(std::cin, color, args.arguments[0]);
+        for_lines_in(std::cin, color<str>, args.arguments[0]);
     }
 
     return 0;

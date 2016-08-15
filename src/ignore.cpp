@@ -60,21 +60,19 @@ int main(int argc, const char* argv[]) {
         bool ignore = true;
 
         if (regex) {
-            for_lines_in<void(str, const std::regex&, bool&, bool)>(
-                std::cin, ignore_before, make_regex(search, case_insensitive), ignore, include_match);
+            auto regex = make_regex(search, case_insensitive);
+            for_lines_in(std::cin, ignore_before<const std::regex&>, regex, ignore, include_match);
         } else {
-            for_lines_in<void(str, const std::string&, bool&, bool)>(
-                std::cin, ignore_before, search, ignore, include_match);
+            for_lines_in(std::cin, ignore_before<str>, search, ignore, include_match);
         }
     } else if (after && !before) {
         bool ignore = false;
 
         if (regex) {
-            for_lines_in<void(str, const std::regex&, bool&, bool)>(
-                std::cin, ignore_after, make_regex(search, case_insensitive), ignore, include_match);
+            auto regex = make_regex(search, case_insensitive);
+            for_lines_in(std::cin, ignore_after<const std::regex&>, regex, ignore, include_match);
         } else {
-            for_lines_in<void(str, const std::string&, bool&, bool)>(
-                std::cin, ignore_after, search, ignore, include_match);
+            for_lines_in(std::cin, ignore_after<str>, search, ignore, include_match);
         }
     } else {
         std::cerr << "Cannot use both --after and --before together" << std::endl;
