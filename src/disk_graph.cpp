@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
         auto space = fs::space(descriptor.mount_point);
         auto percent = (double) space.available / space.capacity * 100;
         unsigned width = 10;
-        unsigned width_full = (double) width / 100 * percent;
+        unsigned width_full = (double) width / 100 * (100 - percent);
 
         std::ostringstream graph_buffer;
         for (unsigned i = 0; i < width; ++i) {
