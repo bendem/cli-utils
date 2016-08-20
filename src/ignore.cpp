@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
         "[--before --after --include-match --regex --case-insensitive] <search>",
         "Ignores all lines before/after a line containing the provided string.",
         {
-            "--before:           Ignore the lines before the match",
+            "--before:           Ignore the lines before the match (default)",
             "--after:            Ignore the lines after the match",
             "--include-match:    Also ignore the line matching the provided string",
             "--regex:            Treat the provided string as a regex",
@@ -46,11 +46,16 @@ int main(int argc, const char* argv[]) {
     )) return 0;
 
     if (args.arguments.empty()) {
+        std::cerr << "Missing search parameter, see --help for more information." << std::endl;
         return 1;
     }
 
     bool before = args.has_flag("before");
     bool after = args.has_flag("after");
+    if (!after && !before) {
+        before = true;
+    }
+
     bool include_match = args.has_flag("include-match");
     bool regex = args.has_flag("regex");
     bool case_insensitive = args.has_flag("case-insensitive");
