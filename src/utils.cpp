@@ -69,12 +69,16 @@ std::string format_memory(std::uintmax_t amount) {
         'Y',
     };
     unsigned unit = 0;
+    uintmax_t previous = 0;
     while (amount > 1024 && unit < units.size()) {
         ++unit;
+        previous = amount & 0x3ff;
         amount >>= 10;
     }
 
     std::ostringstream out;
-    out << std::fixed << std::setprecision(2) << std::setw(6) << amount << ' ' << units[unit] << 'B';
+    out
+        << std::setprecision(2) << std::setw(6) << amount << '.' << previous / 100 << ' '
+        << units[unit] << 'B';
     return out.str();
 }
