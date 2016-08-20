@@ -38,14 +38,14 @@ args_t parse_args(int argc, const char* argv[]);
 
 bool HELP(args_t args, str usage, str description, const std::vector<std::string>& arguments);
 
-template<typename Action, typename... Args>
-void for_lines_in(std::istream& in, Action&& action, Args&&... args) {
+template<typename Action>
+void for_lines_in(std::istream& in, Action&& action) {
     while (true) {
         std::string line;
         std::getline(in, line);
         if (!in) break;
 
-        action(line, std::forward<Args>(args)...);
+        action(line);
     }
 }
 
