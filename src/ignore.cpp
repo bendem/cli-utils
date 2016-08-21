@@ -1,35 +1,39 @@
 #include "utils.hpp"
 #include "find.hpp"
 
-template<typename Search>
-void ignore_after(str line, Search search, bool& ignore, bool include_match) {
-    if (ignore) return;
+template<typename Pattern>
+auto ignore_before(Pattern&& pattern, bool& ignore, bool include_match) {
+    return [&](auto& line) {
+        if (contains(line, pattern)) {
+            ignore = false;
+            if (include_match) {
+                return;
+            }
+        }
 
-    if (contains(line, search)) {
-        ignore = true;
-        if (include_match) {
+        if (!ignore) {
+            std::cout << line << std::endl;
             return;
         }
-    }
-
-    std::cout << line << std::endl;
+    };
 }
 
-template<typename Search>
-void ignore_before(str line, Search search, bool& ignore, bool include_match) {
-    if (contains(line, search)) {
-        ignore = false;
-        if (include_match) {
-            return;
-        }
-    }
 
-    if (!ignore) {
+template<typename Pattern>
+auto ignore_after(Pattern&& pattern, bool& ignore, bool include_match) {
+    return [&](auto& line) {
+        if (ignore) return;
+
+        if (contains(line, pattern)) {
+            ignore = true;
+            if (include_match) {
+                return;
+            }
+        }
+
         std::cout << line << std::endl;
-        return;
-    }
+    };
 }
-
 
 int main(int argc, const char* argv[]) {
     auto args = parse_args(argc, argv);
@@ -65,27 +69,17 @@ int main(int argc, const char* argv[]) {
         bool ignore = true;
 
         if (regex) {
-            auto regex = make_regex(search, case_insensitive);
-            for_lines_in(std::cin, [&](auto& line) {
-                ignore_before(line, regex, ignore, include_match);
-            });
+            for_lines_in(std::cin, ignore_before(make_regex(search, case_insensitive), ignore, include_match));
         } else {
-            for_lines_in(std::cin, [&](auto& line) {
-                ignore_before(line, search, ignore, include_match);
-            });
+            for_lines_in(std::cin, ignore_before(search, ignore, include_match));
         }
     } else if (after && !before) {
         bool ignore = false;
 
         if (regex) {
-            auto regex = make_regex(search, case_insensitive);
-            for_lines_in(std::cin, [&](auto& line) {
-                ignore_after(line, regex, ignore, include_match);
-            });
+            for_lines_in(std::cin, ignore_after(make_regex(search, case_insensitive), ignore, include_match));
         } else {
-            for_lines_in(std::cin, [&](auto& line) {
-                ignore_after(line, search, ignore, include_match);
-            });
+            for_lines_in(std::cin, ignore_after(search, ignore, include_match));
         }
     } else {
         std::cerr << "Cannot use both --after and --before together" << std::endl;
