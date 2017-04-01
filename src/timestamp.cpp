@@ -1,5 +1,4 @@
 #include <chrono>
-#include <ctime>
 #include <iomanip>
 
 #include "utils.hpp"
